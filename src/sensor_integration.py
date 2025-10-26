@@ -20,7 +20,10 @@ logger = logging.getLogger(__name__)
 # 配置参数
 BODY_GPIO = 18      # 人体传感器GPIO引脚
 COLLISION_GPIO = 4  # 碰撞传感器GPIO引脚
-DETECTION_INTERVAL = 1  # 检测间隔(秒)
+BUZZER_GPIO = 17    # 蜂鸣器GPIO引脚
+LED_GPIO = 23       # LED GPIO引脚
+DETECTION_INTERVAL = 3  # 检测间隔(秒)
+BUZZER_DURATION = 2   # 蜂鸣器响声持续时间(秒)
 
 
 class SensorDetector:
@@ -34,8 +37,17 @@ class SensorDetector:
             GPIO.setmode(GPIO.BCM)
             GPIO.setup(BODY_GPIO, GPIO.IN)
             GPIO.setup(COLLISION_GPIO, GPIO.IN)
+            GPIO.setup(BUZZER_GPIO, GPIO.OUT)
+            GPIO.setup(LED_GPIO, GPIO.OUT)
+            
+            # 初始化输出为低电平
+            GPIO.output(BUZZER_GPIO, GPIO.LOW)
+            GPIO.output(LED_GPIO, GPIO.LOW)
+            
             logger.info(f"GPIO {BODY_GPIO} (人体传感器) 初始化成功")
             logger.info(f"GPIO {COLLISION_GPIO} (碰撞传感器) 初始化成功")
+            logger.info(f"GPIO {BUZZER_GPIO} (蜂鸣器) 初始化成功")
+            logger.info(f"GPIO {LED_GPIO} (LED) 初始化成功")
         except Exception as e:
             logger.error(f"GPIO 初始化失败: {e}")
             raise
@@ -69,6 +81,29 @@ class SensorDetector:
             logger.error(f"检测碰撞时出错: {e}")
             return False
     
+    def trigger_buzzer(self):
+        """触发蜂鸣器响声"""
+        try:
+            GPIO.output(BUZZER_GPIO, GPIO.HIGH)
+            time.sleep(BUZZER_DURATION)
+            GPIO.output(BUZZER_GPIO, GPIO.LOW)
+            logger.info("蜂鸣器已触发")
+        except Exception as e:
+            logger.error(f"触发蜂鸣器时出错: {e}")
+    
+    def set_led(self, state):
+        """
+        设置LED状态
+        
+        Args:
+            state (bool): True表示点亮LED，False表示熄灭LED
+        """
+        try:
+            GPIO.output(LED_GPIO, GPIO.HIGH if state else GPIO.LOW)
+            logger.info(f"LED已{'点亮' if state else '熄灭'}")
+        except Exception as e:
+            logger.error(f"设置LED状态时出错: {e}")
+    
     def get_all_status(self):
         """
         获取所有传感器的检测状态
@@ -89,8 +124,12 @@ class SensorDetector:
         """运行传感器检测循环"""
         logger.info("传感器检测程序启动")
         logger.info(f"人体传感器GPIO: {BODY_GPIO}, 碰撞传感器GPIO: {COLLISION_GPIO}")
+        logger.info(f"蜂鸣器GPIO: {BUZZER_GPIO}, LED GPIO: {LED_GPIO}")
         
         try:
+            # 初始化LED为熄灭状态
+            self.set_led(False)
+            
             while True:
                 # 获取所有传感器状态
                 status = self.get_all_status()
@@ -105,10 +144,18 @@ class SensorDetector:
                 # 根据检测结果执行相应操作
                 if status["body"] and status["collision"]:
                     logger.warning("同时检测到人体和障碍物!")
+                    self.trigger_buzzer()
+                    self.set_led(True)
                 elif status["body"]:
                     logger.info("仅检测到人体")
+                    self.trigger_buzzer()
+                    self.set_led(False)
                 elif status["collision"]:
                     logger.info("仅检测到障碍物")
+                    self.set_led(True)
+                else:
+                    # 无检测时确保LED熄灭
+                    self.set_led(False)
                 
                 time.sleep(DETECTION_INTERVAL)
                 
@@ -117,6 +164,12 @@ class SensorDetector:
         except Exception as e:
             logger.error(f"程序运行出错: {e}")
         finally:
+            # 确保退出时LED和蜂鸣器都关闭
+            try:
+                self.set_led(False)
+                GPIO.output(BUZZER_GPIO, GPIO.LOW)
+            except:
+                pass
             self.cleanup()
     
     def cleanup(self):
