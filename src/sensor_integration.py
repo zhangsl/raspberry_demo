@@ -90,7 +90,7 @@ class SensorDetector:
         """
         try:
             if state != self.buzzer_on:  # 只有状态改变时才操作
-                GPIO.output(BUZZER_GPIO, GPIO.LOW if state else GPIO.HIGH)
+                GPIO.output(BUZZER_GPIO, GPIO.HIGH if state else GPIO.LOW)
                 self.buzzer_on = state
                 logger.info(f"蜂鸣器已{'开启' if state else '关闭'}")
         except Exception as e:
