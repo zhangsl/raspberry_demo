@@ -89,10 +89,10 @@ class SensorDetector:
             state (bool): True表示开启蜂鸣器，False表示关闭蜂鸣器
         """
         try:
-            if state != self.buzzer_on:  # 只有状态改变时才操作
-                GPIO.output(BUZZER_GPIO, GPIO.HIGH if state else GPIO.LOW)
-                self.buzzer_on = state
-                logger.info(f"蜂鸣器已{'开启' if state else '关闭'}")
+            # 移除状态检查，每次都直接设置GPIO输出
+            GPIO.output(BUZZER_GPIO, GPIO.HIGH if state else GPIO.LOW)
+            self.buzzer_on = state
+            logger.info(f"蜂鸣器已{'开启' if state else '关闭'}")
         except Exception as e:
             logger.error(f"设置蜂鸣器状态时出错: {e}")
     
