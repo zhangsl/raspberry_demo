@@ -4,6 +4,8 @@ This is a collection of Raspberry Pi sensor demo projects, including human body 
 
 **Note: The current code is developed and tested based on Raspberry Pi 3 Model B**
 
+[中文文档](README_zh.md)
+
 ## Project Structure
 
 ```
@@ -65,7 +67,7 @@ raspberry-pi-demo/
 
 1. Clone the project:
    ```bash
-   git clone https://codeup.aliyun.com/67fa7122c3ce52a957f12f24/Default/raspberry_demo.git
+   git clone https://github.com/zhangsl/raspberry_demo.git
    cd raspberry-pi-demo
    ```
 

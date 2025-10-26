@@ -65,7 +65,7 @@ raspberry-pi-demo/
 
 1. 克隆项目：
    ```bash
-   git clone https://codeup.aliyun.com/67fa7122c3ce52a957f12f24/Default/raspberry_demo.git
+   git clone https://github.com/zhangsl/raspberry_demo.git
    cd raspberry-pi-demo
    ```
 
