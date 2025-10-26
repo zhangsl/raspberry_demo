@@ -1,83 +1,89 @@
 # Raspberry Pi Demo Projects
 
-这是一个基于树莓派的多种传感器演示项目集合，包含人体检测、光线检测、邮件报警、碰撞检测和综合传感器检测等功能。
+This is a collection of Raspberry Pi sensor demo projects, including human body detection, light detection, email alert, collision detection, and integrated sensor detection.
 
-## 项目结构
+**Note: The current code is developed and tested based on Raspberry Pi 3 Model B**
+
+## Project Structure
 
 ```
 raspberry-pi-demo/
 ├── setup.py
 ├── README.md
-├── requirements.txt     # 项目依赖列表
-├── venv/               # Python虚拟环境
+├── README_en.md         # English version README
+├── requirements.txt     # Project dependencies list
+├── venv/               # Python virtual environment
 ├── __init__.py
-├── sensor_detection.log     # 传感器检测日志文件
+├── sensor_detection.log     # Sensor detection log file
 ├── src/
 │   ├── __init__.py
-│   ├── body_detect.py       # 人体检测模块，使用红外传感器检测人体活动并通过邮件报警
-│   ├── smartlite.py         # 光线检测模块，检测环境光线变化
-│   ├── email_alarm.py       # 邮件报警模块，独立的邮件发送功能
-│   ├── collision_detection.py   # 碰撞检测模块，使用红外避障传感器检测障碍物
-│   └── sensor_integration.py    # 综合传感器检测模块，同时检测人体和碰撞
+│   ├── body_detect.py       # Human body detection module, using infrared sensor to detect human activity and send email alerts
+│   ├── smartlite.py         # Light detection module, detecting environmental light changes
+│   ├── email_alarm.py       # Email alert module, independent email sending function
+│   ├── collision_detection.py   # Collision detection module, using infrared obstacle avoidance sensor to detect obstacles
+│   └── sensor_integration.py    # Integrated sensor detection module, simultaneously detecting human body and collision
 ├── tests/
 └── docs/
-    └── collision_detection_design.md  # 碰撞检测设计方案
+    └── collision_detection_design.md  # Collision detection design document
 ```
 
-## 功能说明
+## Features
 
-### 人体检测 (src/body_detect.py)
-- 使用 GPIO 18 连接人体红外传感器
-- 检测到人体活动时发送邮件报警
-- 邮件通过 SMTP 协议发送
+### Human Body Detection (src/body_detect.py)
+- Uses GPIO 18 to connect to human body infrared sensor
+- Sends email alert when human activity is detected
+- Emails are sent via SMTP protocol
 
-### 光线检测 (src/smartlite.py)
-- 使用 GPIO 3 检测环境光线变化
-- 当检测到光线变化时输出时间戳和提示信息
+### Light Detection (src/smartlite.py)
+- Uses GPIO 3 to detect environmental light changes
+- Outputs timestamp and notification when light changes are detected
 
-### 邮件报警 (src/email_alarm.py)
-- 独立的邮件发送模块
-- 可以被其他模块调用发送报警邮件
+### Email Alert (src/email_alarm.py)
+- Independent email sending module
+- Can be called by other modules to send alert emails
 
-### 碰撞检测 (src/collision_detection.py)
-- 使用红外避障传感器检测前方障碍物
-- 可调节检测距离2-30cm
-- 实时检测并输出结果
+### Collision Detection (src/collision_detection.py)
+- Uses infrared obstacle avoidance sensor to detect obstacles ahead
+- Detectable distance range: 2-30cm (adjustable)
+- Real-time detection with output results
 
-### 综合传感器检测 (src/sensor_integration.py)
-- 同时检测人体传感器(GPIO18)和碰撞传感器(GPIO4)
-- 实时轮询检测并记录日志
-- 支持文件和控制台双重日志输出
+### Integrated Sensor Detection (src/sensor_integration.py)
+- Simultaneously detects human body sensor (GPIO18) and collision sensor (GPIO4)
+- Buzzer sounds continuously when human body is detected (GPIO17), LED lights up when obstacle is detected (GPIO23)
+- Real-time polling detection with logging
+- Supports dual logging to file and console
 
-## 硬件连接
+## Hardware Connections
 
-- 人体红外传感器连接到 GPIO 18
-- 光线传感器连接到 GPIO 3
-- 红外避障传感器连接到 GPIO 4
+- Human body infrared sensor connected to GPIO 18
+- Light sensor connected to GPIO 3
+- Infrared obstacle avoidance sensor connected to GPIO 4
+- Buzzer connected to GPIO 17
+- LED connected to GPIO 23
 
-## 安装
+## Installation
 
-1. 克隆项目：
+1. Clone the project:
    ```bash
    git clone https://codeup.aliyun.com/67fa7122c3ce52a957f12f24/Default/raspberry_demo.git
    cd raspberry-pi-demo
    ```
 
-2. 创建虚拟环境（可选但推荐）：
+2. Create virtual environment (optional but recommended):
    ```bash
    python3 -m venv venv
    source venv/bin/activate  # Linux/MacOS
-   # 或在Windows上使用 venv\Scripts\activate
+   # Or use venv\Scripts\activate on Windows
    ```
 
-3. 安装依赖：
+3. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
 
-## 使用说明
+## Usage
 
-1. 设置环境变量：
+1. Set environment variables:
    ```bash
    export MAIL_HOST=smtp.yeah.net
    export MAIL_USER=your_username
@@ -86,7 +92,7 @@ raspberry-pi-demo/
    export RECEIVERS=recipient1@domain.com,recipient2@domain.com
    ```
 
-2. 运行程序：
+2. Run the programs:
    ```bash
    python src/body_detect.py
    python src/smartlite.py
@@ -95,17 +101,17 @@ raspberry-pi-demo/
    python src/sensor_integration.py
    ```
 
-## 注意事项
+## Notes
 
-1. 需要树莓派硬件环境才能运行
-2. 需要正确连接传感器硬件
-3. 邮件报警功能需要配置正确的邮箱信息
+1. Raspberry Pi hardware environment is required to run (developed and tested based on Raspberry Pi 3 Model B)
+2. Sensors need to be properly connected to the hardware
+3. Email alert function requires correct email configuration
 
-## 安全提示
+## Security Notice
 
-现在所有敏感信息（邮箱密码等）都已从代码中移除，需要通过环境变量配置：
-1. 邮件服务器信息（MAIL_HOST, MAIL_USER, MAIL_PASS）
-2. 发送者邮箱（SENDER）
-3. 接收者邮箱列表（RECEIVERS）
+All sensitive information (email passwords, etc.) has been removed from the code and needs to be configured through environment variables:
+1. Email server information (MAIL_HOST, MAIL_USER, MAIL_PASS)
+2. Sender email (SENDER)
+3. Recipient email list (RECEIVERS)
 
-请务必保护好这些环境变量，不要将其提交到代码仓库中。
+Please protect these environment variables and do not commit them to the code repository.
