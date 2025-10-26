@@ -22,14 +22,14 @@ BODY_GPIO = 18      # 人体传感器GPIO引脚
 COLLISION_GPIO = 4  # 碰撞传感器GPIO引脚
 BUZZER_GPIO = 17    # 蜂鸣器GPIO引脚
 LED_GPIO = 23       # LED GPIO引脚
-DETECTION_INTERVAL = 3  # 检测间隔(秒)
-BUZZER_DURATION = 2   # 蜂鸣器响声持续时间(秒)
+DETECTION_INTERVAL = 1  # 检测间隔(秒)
 
 
 class SensorDetector:
     def __init__(self):
         """初始化传感器检测器"""
         self.setup_gpio()
+        self.buzzer_on = False  # 蜂鸣器状态标志
     
     def setup_gpio(self):
         """初始化GPIO设置"""
@@ -81,15 +81,20 @@ class SensorDetector:
             logger.error(f"检测碰撞时出错: {e}")
             return False
     
-    def trigger_buzzer(self):
-        """触发蜂鸣器响声"""
+    def set_buzzer(self, state):
+        """
+        设置蜂鸣器状态
+        
+        Args:
+            state (bool): True表示开启蜂鸣器，False表示关闭蜂鸣器
+        """
         try:
-            GPIO.output(BUZZER_GPIO, GPIO.HIGH)
-            time.sleep(BUZZER_DURATION)
-            GPIO.output(BUZZER_GPIO, GPIO.LOW)
-            logger.info("蜂鸣器已触发")
+            if state != self.buzzer_on:  # 只有状态改变时才操作
+                GPIO.output(BUZZER_GPIO, GPIO.HIGH if state else GPIO.LOW)
+                self.buzzer_on = state
+                logger.info(f"蜂鸣器已{'开启' if state else '关闭'}")
         except Exception as e:
-            logger.error(f"触发蜂鸣器时出错: {e}")
+            logger.error(f"设置蜂鸣器状态时出错: {e}")
     
     def set_led(self, state):
         """
@@ -129,6 +134,7 @@ class SensorDetector:
         try:
             # 初始化LED为熄灭状态
             self.set_led(False)
+            self.set_buzzer(False)
             
             while True:
                 # 获取所有传感器状态
@@ -144,17 +150,19 @@ class SensorDetector:
                 # 根据检测结果执行相应操作
                 if status["body"] and status["collision"]:
                     logger.warning("同时检测到人体和障碍物!")
-                    self.trigger_buzzer()
+                    self.set_buzzer(True)  # 持续开启蜂鸣器
                     self.set_led(True)
                 elif status["body"]:
                     logger.info("仅检测到人体")
-                    self.trigger_buzzer()
+                    self.set_buzzer(True)  # 持续开启蜂鸣器
                     self.set_led(False)
                 elif status["collision"]:
                     logger.info("仅检测到障碍物")
+                    self.set_buzzer(False)  # 关闭蜂鸣器
                     self.set_led(True)
                 else:
-                    # 无检测时确保LED熄灭
+                    # 无检测时确保LED熄灭并关闭蜂鸣器
+                    self.set_buzzer(False)
                     self.set_led(False)
                 
                 time.sleep(DETECTION_INTERVAL)
@@ -167,7 +175,7 @@ class SensorDetector:
             # 确保退出时LED和蜂鸣器都关闭
             try:
                 self.set_led(False)
-                GPIO.output(BUZZER_GPIO, GPIO.LOW)
+                self.set_buzzer(False)
             except:
                 pass
             self.cleanup()
