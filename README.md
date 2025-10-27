@@ -108,12 +108,3 @@ raspberry-pi-demo/
 1. Raspberry Pi hardware environment is required to run (developed and tested based on Raspberry Pi 3 Model B)
 2. Sensors need to be properly connected to the hardware
 3. Email alert function requires correct email configuration
-
-## Security Notice
-
-All sensitive information (email passwords, etc.) has been removed from the code and needs to be configured through environment variables:
-1. Email server information (MAIL_HOST, MAIL_USER, MAIL_PASS)
-2. Sender email (SENDER)
-3. Recipient email list (RECEIVERS)
-
-Please protect these environment variables and do not commit them to the code repository.
